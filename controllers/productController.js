@@ -27,11 +27,9 @@ class ProductController{
                 stock: el.stock,
                 category: el.Category.name
             }))
-
-
             res.status(200).json(response)
-        } catch (error) {
-            console.log(error);
+        } catch (err) {
+            console.log(err);
         }
     }
     static async addProduct(req, res){
@@ -40,8 +38,38 @@ class ProductController{
             const newProduct = await Product.create({name, price, description, imgUrl, stock, CategoryId})
 
             res.status(201).json('New Product Created')
-        } catch (error) {
-            console.log(error)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    static async getProductbyID(req, res){
+        try {
+            const id = req.params.id
+            const productId = await Product.findByPk(id, { attributes: { exclude: ["createdAt","updatedAt"]}})
+
+            res.status(200).json(productId)
+
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    static async updateProduct(req, res){
+        try {
+            const productId = req.params.id
+            if(!productId){
+                return res.status(404).json('Product Id not found')
+            }
+
+            const product = await Product.findByPk(productId)
+
+            if(!product){
+                return res.status(404).json('Product not found')
+            }
+            await Product.update(req.body, { where: { id: productId }})
+
+            res.status(200).json('Product updated successfully')
+        } catch (err) {
+            console.log(err)
         }
     }
 }
